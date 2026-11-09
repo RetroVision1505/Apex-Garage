@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="id"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Apex Garage Pro</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#070b14">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#070b14;--s1:#0f1626;--s2:#151e33;--line:#223049;--ink:#eaf0fa;--mute:#8493ad;--gold:#d9b86c;--gold2:#a8843a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:radial-gradient(900px 400px at 80% -10%,#16223d 0,transparent 60%),var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding-bottom:calc(130px + env(safe-area-inset-bottom));min-height:100vh}
+header{display:flex;align-items:center;justify-content:space-between;max-width:560px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 18px 6px}
+.logo{font-size:22px;font-weight:800;font-style:italic;letter-spacing:1px;margin:0}
+.logo span{color:var(--gold)}
+.pro{font-size:11px;font-weight:700;color:var(--gold);border:1px solid var(--gold2);border-radius:4px;padding:1px 7px;letter-spacing:1.5px}
+main{max-width:560px;margin:0 auto;padding:8px 18px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:6px 0 14px;scrollbar-width:none}
+.chip{flex:none;background:var(--s1);color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:7px 16px;font:inherit;font-weight:600;cursor:pointer}
+.chip.on{color:#14100a;background:linear-gradient(135deg,var(--gold),var(--gold2));border-color:transparent}
+.hero{position:relative;height:230px;border-radius:22px;overflow:hidden;background:var(--s2);border:1px solid var(--line)}
+.hero img{width:100%;height:100%;object-fit:cover;display:block}
+.hero .ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#17233f,#0d1426)}
+.hero .ph svg{width:62%;fill:none;stroke:#34466b;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(5,8,15,.92));pointer-events:none}
+.hero .cap{position:absolute;left:18px;right:18px;bottom:16px;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.hero h2{margin:0;font-size:26px;font-style:italic;font-weight:800;line-height:1.1}
+.hero .sub{color:#c3cde0;font-size:13px}
+.hero .bar{position:absolute;left:0;bottom:0;width:120px;height:4px;background:var(--gold);z-index:3;transform-origin:left;clip-path:polygon(0 0,100% 0,92% 100%,0 100%)}
+.ghost{background:rgba(10,15,28,.65);color:var(--ink);border:1px solid #ffffff30;border-radius:999px;padding:7px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;backdrop-filter:blur(8px)}
+.panel{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--line);border-radius:20px;padding:18px;margin:14px 0}
+.lbl{color:var(--mute);font-size:13px}
+.big{font-size:30px;font-weight:800;font-style:italic;font-variant-numeric:tabular-nums;letter-spacing:-.5px;margin:2px 0}
+.big i{font-style:normal;font-size:16px;color:var(--gold);margin-right:4px}
+.gauge{position:relative;width:118px;flex:none;text-align:center}
+.gauge svg{width:118px;display:block}
+.gauge b{position:absolute;left:0;right:0;top:34px;font-size:26px;font-weight:800;font-style:italic}
+.gauge small{position:absolute;left:0;right:0;top:64px;color:var(--mute);font-size:11px}
+h3{font-size:15px;font-weight:700;margin:22px 0 10px;letter-spacing:.3px}
+.it{display:flex;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin-bottom:8px}
+.it>div{flex:1;min-width:0}.it b{display:block;font-weight:600}.it small{color:var(--mute)}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}
+.pill{font-style:normal;font-size:12px;font-weight:700;border-radius:999px;padding:4px 11px;white-space:nowrap}
+.bad{background:#3a1519;color:#ff8a8f}.warn{background:#3a2c0f;color:#ffc457}.ok{background:#10301f;color:#5fdc9b}.none{background:#1b2438;color:#8493ad}
+.dot.bad{background:#ff5a62}.dot.warn{background:#ffb02e}.dot.ok{background:#3ddc8c}.dot.none{background:#566480}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:16px;padding:13px 15px;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mute{color:var(--mute);font-size:13px}
+.meter{height:6px;background:#0c1322;border-radius:3px;margin-top:8px}.meter i{display:block;height:100%;background:linear-gradient(90deg,var(--gold2),var(--gold));border-radius:3px}
+.cols{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;text-align:center}
+.b{height:110px;display:flex;align-items:flex-end;background:#0c1322;border-radius:8px;margin-bottom:6px}
+.b i{display:block;width:100%;min-height:3px;background:linear-gradient(180deg,var(--gold),var(--gold2));border-radius:8px}
+.cols small{display:block;color:var(--mute);font-size:11px}
+input,select{font:inherit;color:var(--ink);background:#0b1220;border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-width:0}
+.btn{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#14100a;border:0;border-radius:12px;padding:11px 18px;font:inherit;font-weight:700;cursor:pointer}
+.btn.g{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.d{background:transparent;color:#ff8a8f;border:1px solid #5a2328}
+.x{background:none;border:0;color:var(--mute);font-size:20px;cursor:pointer;padding:2px 8px}
+.empty{text-align:center;padding:70px 10px}
+.empty h2{font-style:italic}
+nav{position:fixed;left:14px;right:14px;bottom:calc(12px + env(safe-area-inset-bottom));max-width:532px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;background:rgba(18,26,45,.82);backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:26px;padding:8px 6px;z-index:9}
+nav button{background:none;border:0;color:var(--mute);font:inherit;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;cursor:pointer}
+nav button.on{color:var(--gold)}
+nav svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav .plus{width:56px;height:56px;margin:-26px auto 0;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#14100a;border:4px solid var(--bg);justify-content:center}
+nav .plus svg{width:26px;height:26px;stroke-width:2.4}
+dialog{border:1px solid var(--line);border-radius:22px;padding:20px;width:min(92vw,420px);background:var(--s1);color:var(--ink)}
+dialog::backdrop{background:rgba(2,4,10,.7)}
+dialog h3{margin-top:0;font-size:18px;font-style:italic}
+dialog label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+dialog input,dialog select{width:100%}
+.acts{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+</style></head><body>
+<header><h1 class="logo">APEX <span>GARAGE</span></h1><span class="pro">PRO</span></header>
+<main id="main"></main>
+<nav id="nav">
+<button data-t="home" onclick="tab('home')"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg>Beranda</button>
+<button data-t="riwayat" onclick="tab('riwayat')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Riwayat</button>
+<button class="plus" onclick="openLog()" aria-label="Catat servis"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+<button data-t="biaya" onclick="tab('biaya')"><svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Biaya</button>
+<button data-t="aturan" onclick="tab('aturan')"><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>Aturan</button>
+</nav>
+
+<dialog id="dl"><form onsubmit="saveLog(event)"><h3>Catat servis</h3>
+<label>Jenis perawatan</label><input name="jenis" list="jl" required placeholder="Ganti oli"><datalist id="jl"></datalist>
+<label>Tanggal</label><input name="tgl" type="date" required>
+<label>Biaya (Rp)</label><input name="biaya" type="number" inputmode="numeric" min="0" placeholder="85000">
+<label>KM (boleh kosong)</label><input name="km" type="number" inputmode="numeric" min="0">
+<label>Catatan</label><input name="cat" placeholder="Oli 0,8 liter, bengkel resmi">
+<div class="acts"><button type="button" class="btn g" onclick="$('#dl').close()">Batal</button><button class="btn">Simpan</button></div></form></dialog>
+
+<dialog id="dv"><form onsubmit="saveV(event)"><h3>Tambah kendaraan</h3>
+<label>Nama</label><input name="nama" required placeholder="Vario 125">
+<label>Plat nomor (opsional)</label><input name="plat" placeholder="B 1234 XYZ">
+<label>Jenis</label><select name="jenis"><option value="motor">Motor</option><option value="mobil">Mobil</option></select>
+<label>Foto kendaraan (opsional)</label><input type="file" id="vp" accept="image/*">
+<div class="acts"><button type="button" class="btn g" onclick="$('#dv').close()">Batal</button><button class="btn">Tambah</button></div></form></dialog>
+<input type="file" id="ph" accept="image/*" hidden>
+<input type="file" id="imp" accept="application/json" hidden onchange="importData(this)">
+
+<script>
+const KEY='bengkel-v1',TABS=['home','riwayat','biaya','aturan'];
+const PRESET={motor:[["Ganti oli",2],["Lumasi rantai",1],["Busi",6],["Filter udara",6],["Kampas rem",6]],mobil:[["Ganti oli",6],["Filter udara",12],["Busi",12],["Kampas rem",12],["Aki",24]]};
+const SIL={motor:'<circle cx="24" cy="52" r="14"/><circle cx="96" cy="52" r="14"/><path d="M24 52l22-24h22l12 24M46 28l-6-10h-10M68 28l-4-12h10"/>',mobil:'<path d="M8 52h104l-8-18-22-8H46l-18 10z"/><circle cx="34" cy="54" r="9"/><circle cx="86" cy="54" r="9"/>'};
+const $=s=>document.querySelector(s);
+const uid=()=>Math.random().toString(36).slice(2,9);
+const rp=n=>'Rp'+Math.round(n||0).toLocaleString('id-ID');
+const rs=n=>n>=1e6?(n/1e6).toFixed(1).replace('.',',')+' jt':n>=1e3?Math.round(n/1e3)+' rb':''+n;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fd=d=>new Date(d+'T00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
+let S=load(),newPhoto=null;
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.vehicles))return d}catch(e){}return{vehicles:[],cur:null,tab:'home'}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){alert('Penyimpanan penuh. Coba foto yang lebih kecil atau hapus data lama.');return false}}
+const V=()=>S.vehicles.find(v=>v.id===S.cur)||null;
+function tab(t){S.tab=t;save();render();scrollTo(0,0)}
+function pickPhoto(file,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,900/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.8))};im.src=r.result};r.readAsDataURL(file)}
+
+function status(v){
+ const t=new Date();t.setHours(0,0,0,0);
+ return v.rules.map(r=>{
+  const l=v.logs.filter(x=>x.type.toLowerCase()===r.name.toLowerCase()).sort((a,b)=>b.date.localeCompare(a.date))[0];
+  if(!l)return{r,cls:'none',txt:'Belum dicatat',d:1e9};
+  const due=new Date(l.date+'T00:00');due.setMonth(due.getMonth()+r.months);
+  const d=Math.round((due-t)/864e5);
+  const cls=d<0?'bad':d<=14?'warn':'ok';
+  const txt=d<0?`Telat ${-d} hari`:d===0?'Hari ini':d<=60?`${d} hari lagi`:`${Math.round(d/30)} bulan lagi`;
+  return{r,cls,txt,d,last:l.date};
+ }).sort((a,b)=>a.d-b.d);
+}
+function totals(v){
+ const y=''+new Date().getFullYear();let all=0,yr=0;const by={};
+ v.logs.forEach(l=>{const c=+l.cost||0;all+=c;if(l.date.startsWith(y))yr+=c;by[l.type]=(by[l.type]||0)+c});
+ return{all,yr,by};
+}
+function homeView(v){
+ const T=totals(v),ss=status(v),ok=ss.filter(s=>s.cls==='ok').length,pct=ss.length?Math.round(ok/ss.length*100):0;
+ const hero=`<section class="hero">${v.photo?`<img src="${v.photo}" alt="Foto ${esc(v.name)}">`:`<div class="ph"><svg viewBox="0 0 120 70">${SIL[v.type]||SIL.motor}</svg></div>`}
+ <div class="cap"><div><h2>${esc(v.name)}</h2><div class="sub">${v.type==='mobil'?'Mobil':'Motor'}${v.plat?' · '+esc(v.plat):''}</div></div><button class="ghost" onclick="$('#ph').click()">${v.photo?'Ganti foto':'Tambah foto'}</button></div><i class="bar"></i></section>`;
+ const panel=`<section class="panel"><div><div class="lbl">Total biaya servis</div><div class="big"><i>Rp</i>${Math.round(T.all).toLocaleString('id-ID')}</div><div class="lbl">Tahun ini ${rp(T.yr)} · ${v.logs.length} servis</div></div>
+ <div class="gauge"><svg viewBox="0 0 120 70"><path d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="#0c1322" stroke-width="10" stroke-linecap="round"/><path d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="#d9b86c" stroke-width="10" stroke-linecap="round" stroke-dasharray="${pct/100*157} 157"/></svg><b>${pct}%</b><small>terawat</small></div></section>`;
+ return hero+panel+`<h3>Jadwal perawatan</h3>`+ss.map(s=>`<div class="it"><i class="dot ${s.cls}"></i><div><b>${esc(s.r.name)}</b><small>${s.last?'Terakhir '+fd(s.last)+' · ':''}tiap ${s.r.months} bulan</small></div><em class="pill ${s.cls}">${s.txt}</em></div>`).join('');
+}
+function histView(v){
+ if(!v.logs.length)return `<div class="empty"><h2>Belum ada riwayat</h2><p class="mute">Ketuk tombol emas di tengah untuk mencatat servis pertama.</p></div>`;
+ return `<h3 style="margin-top:8px">Riwayat servis</h3>`+v.logs.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(l=>`<div class="card"><div class="row"><b>${esc(l.type)}</b><b style="color:var(--gold)">${l.cost?rp(l.cost):'-'}</b></div>
+ <div class="row"><span class="mute">${fd(l.date)}${l.km?' · '+Number(l.km).toLocaleString('id-ID')+' km':''}</span><button class="x" onclick="delLog('${l.id}')" aria-label="Hapus">×</button></div>${l.note?`<div class="mute">${esc(l.note)}</div>`:''}</div>`).join('');
+}
+function biayaView(v){
+ const T=totals(v),now=new Date(),ms=[];
+ for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);ms.push({k:d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),l:d.toLocaleDateString('id-ID',{month:'short'}),c:0})}
+ v.logs.forEach(l=>{const m=ms.find(x=>l.date.startsWith(x.k));if(m)m.c+=+l.cost||0});
+ const mx=Math.max(1,...ms.map(m=>m.c)),rows=Object.entries(T.by).filter(e=>e[1]>0).sort((a,b)=>b[1]-a[1]),rm=rows.length?rows[0][1]:1;
+ return `<div class="panel"><div><div class="lbl">Total sejak awal</div><div class="big"><i>Rp</i>${Math.round(T.all).toLocaleString('id-ID')}</div></div></div>
+ <h3>6 bulan terakhir</h3><div class="card"><div class="cols">${ms.map(m=>`<div><div class="b"><i style="height:${m.c/mx*100}%"></i></div><small>${m.l}</small><small>${m.c?rs(m.c):'-'}</small></div>`).join('')}</div></div>
+ <h3>Biaya per jenis</h3>`+(rows.length?rows.map(([k,c])=>`<div class="card"><div class="row"><span>${esc(k)}</span><b>${rp(c)}</b></div><div class="meter"><i style="width:${Math.max(4,c/rm*100)}%"></i></div></div>`).join(''):`<p class="mute">Belum ada biaya tercatat.</p>`);
+}
+function rulesView(v){
+ return `<h3 style="margin-top:8px">Interval perawatan</h3>`
+ +v.rules.map((r,i)=>`<div class="card row"><span>${esc(r.name)}</span><span class="row" style="gap:6px"><input type="number" min="1" value="${r.months}" style="width:68px" onchange="setRule(${i},this.value)" aria-label="Interval bulan ${esc(r.name)}"><span class="mute">bulan</span><button class="x" onclick="delRule(${i})" aria-label="Hapus aturan">×</button></span></div>`).join('')
+ +`<div class="card row" style="gap:6px"><input id="nn" placeholder="Jenis baru, mis. Aki" style="flex:1"><input id="nm" type="number" min="1" placeholder="Bulan" style="width:76px"><button class="btn" onclick="addRule()">Tambah</button></div>
+ <h3>Kendaraan dan data</h3><div class="row" style="gap:8px;flex-wrap:wrap;justify-content:flex-start"><button class="btn g" onclick="exportData()">Ekspor cadangan</button><button class="btn g" onclick="$('#imp').click()">Impor cadangan</button><button class="btn d" onclick="delVehicle()">Hapus kendaraan ini</button></div>
+ <p class="mute">Data tersimpan di browser perangkat ini. Ekspor cadangan sesekali supaya aman.</p>`;
+}
+function render(){
+ const v=V();if(!TABS.includes(S.tab))S.tab='home';
+ $('#nav').style.display=v?'':'none';
+ document.querySelectorAll('nav button[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===S.tab));
+ const chips=S.vehicles.length?`<div class="chips">${S.vehicles.map(x=>`<button class="chip ${x.id===S.cur?'on':''}" onclick="S.cur='${x.id}';save();render()">${esc(x.name)}</button>`).join('')}<button class="chip" onclick="openV()">+ Kendaraan</button></div>`:'';
+ $('#main').innerHTML=!v?`<div class="empty"><h2>Mulai dengan kendaraanmu</h2><p class="mute">Tambahkan motor atau mobil, lengkap dengan fotonya.</p><button class="btn" onclick="openV()">Tambah kendaraan</button></div>`
+  :chips+(S.tab==='riwayat'?histView(v):S.tab==='biaya'?biayaView(v):S.tab==='aturan'?rulesView(v):homeView(v));
+}
+function openLog(){const v=V();if(!v)return;$('#jl').innerHTML=v.rules.map(r=>`<option value="${esc(r.name)}">`).join('');const f=$('#dl form');f.reset();f.elements.tgl.value=today();$('#dl').showModal()}
+function saveLog(e){e.preventDefault();const v=V(),f=e.target.elements;
+ v.logs.push({id:uid(),type:f.jenis.value.trim(),date:f.tgl.value,cost:+f.biaya.value||0,km:f.km.value,note:f.cat.value.trim()});
+ save();$('#dl').close();S.tab='home';render()}
+function delLog(id){if(!confirm('Hapus catatan ini?'))return;const v=V();v.logs=v.logs.filter(l=>l.id!==id);save();render()}
+function openV(){$('#dv form').reset();newPhoto=null;$('#dv').showModal()}
+function saveV(e){e.preventDefault();const f=e.target.elements;
+ const v={id:uid(),name:f.nama.value.trim(),plat:f.plat.value.trim(),type:f.jenis.value,photo:newPhoto,rules:PRESET[f.jenis.value].map(([name,months])=>({name,months})),logs:[]};
+ S.vehicles.push(v);S.cur=v.id;S.tab='home';if(!save()){S.vehicles.pop();S.cur=S.vehicles[0]?.id||null}$('#dv').close();render()}
+function delVehicle(){const v=V();if(!confirm('Hapus '+v.name+' beserta seluruh riwayatnya?'))return;S.vehicles=S.vehicles.filter(x=>x.id!==v.id);S.cur=S.vehicles[0]?.id||null;S.tab='home';save();render()}
+function setRule(i,val){const n=parseInt(val,10);if(n>0){V().rules[i].months=n;save()}}
+function delRule(i){V().rules.splice(i,1);save();render()}
+function addRule(){const n=$('#nn').value.trim(),m=parseInt($('#nm').value,10);if(!n||!(m>0))return;V().rules.push({name:n,months:m});save();render()}
+function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='apex-garage-cadangan.json';a.click()}
+function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.vehicles))throw 0;if(!confirm('Ganti semua data sekarang dengan cadangan ini?'))return;S=d;S.cur=S.cur||S.vehicles[0]?.id||null;S.tab='home';save();render()}catch(e){alert('File cadangan tidak valid.')}inp.value=''};r.readAsText(f)}
+$('#ph').onchange=e=>{const f=e.target.files[0];if(f)pickPhoto(f,u=>{V().photo=u;save();render()});e.target.value=''};
+$('#vp').onchange=e=>{const f=e.target.files[0];if(f)pickPhoto(f,u=>{newPhoto=u})};
+if(!V()&&S.vehicles[0])S.cur=S.vehicles[0].id;
+render();
+if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
