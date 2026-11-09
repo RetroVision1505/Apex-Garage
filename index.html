@@ -75,7 +75,7 @@ dialog input,dialog select{width:100%}
 .sug{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .sg{background:#0b1220;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
 .sg:active{color:var(--gold);border-color:var(--gold2)}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#0b1220;border:1px solid var(--line);border-radius:14px;padding:4px}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#0b1220;border:1px solid var(--line);border-radius:14px;padding:4px}
 .seg button{background:none;border:0;color:var(--mute);font:inherit;font-weight:600;padding:9px 0;border-radius:10px;cursor:pointer}
 .seg button.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#14100a}
 dialog .up{display:flex;align-items:center;gap:12px;border:1.5px dashed var(--line);border-radius:14px;padding:10px;color:var(--ink);font-size:14px;cursor:pointer;margin:0}
@@ -111,7 +111,7 @@ dialog .up:hover{border-color:var(--gold2)}
 <dialog id="dv"><form onsubmit="saveV(event)"><h3>Tambah kendaraan</h3>
 <label>Nama</label><input name="nama" required placeholder="Vario 125">
 <label>Plat nomor (opsional)</label><input name="plat" placeholder="B 1234 XYZ">
-<label>Jenis</label><input type="hidden" name="jenis" value="matic"><div class="seg" id="seg"><button type="button" class="on" data-v="matic">Matic</button><button type="button" data-v="motor">Motor</button><button type="button" data-v="mobil">Mobil</button></div>
+<label>Jenis</label><input type="hidden" name="jenis" value="motor"><div class="seg" id="seg"><button type="button" class="on" data-v="motor">Motor</button><button type="button" data-v="mobil">Mobil</button></div>
 <label>Foto kendaraan (opsional)</label><label class="up" for="vp"><img id="vpi" alt="" hidden><span id="vpt">Pilih foto dari galeri</span></label><input type="file" id="vp" accept="image/*" hidden>
 <div class="acts"><button type="button" class="btn g" onclick="$('#dv').close()">Batal</button><button class="btn">Tambah</button></div></form></dialog>
 <dialog id="cf"><h3 id="cft"></h3><p class="mute" id="cfm"></p><div class="acts"><button type="button" class="btn g" id="cfn">Batal</button><button type="button" class="btn" id="cfy">Ya</button></div></dialog>
@@ -121,9 +121,8 @@ dialog .up:hover{border-color:var(--gold2)}
 
 <script>
 const KEY='bengkel-v1',TABS=['home','riwayat','biaya','aturan'];
-const PRESET={matic:[["Ganti oli",2],["Oli gardan",6],["Bersihkan CVT",6],["Kampas rem",6],["Filter udara",12],["Busi",12],["V-belt dan roller",24],["Minyak rem",24],["Aki",24]],motor:[["Ganti oli",2],["Lumasi rantai",1],["Busi",6],["Filter udara",6],["Kampas rem",6]],mobil:[["Ganti oli",6],["Filter udara",12],["Busi",12],["Kampas rem",12],["Aki",24]]};
+const PRESET={motor:[["Ganti oli",2],["Oli gardan",6],["Bersihkan CVT",6],["Kampas rem",6],["Filter udara",12],["Busi",12],["V-belt dan roller",24],["Minyak rem",24],["Aki",24]],mobil:[["Ganti oli",6],["Filter oli",6],["Rotasi dan balancing ban",6],["Filter udara",12],["Filter AC",12],["Kampas rem",12],["Spooring",12],["Wiper",12],["Busi",24],["Filter bensin",24],["Minyak rem",24],["Air radiator",24],["Oli transmisi",24],["Aki",24]]};
 const SIL={motor:'<circle cx="24" cy="52" r="14"/><circle cx="96" cy="52" r="14"/><path d="M24 52l22-24h22l12 24M46 28l-6-10h-10M68 28l-4-12h10"/>',mobil:'<path d="M8 52h104l-8-18-22-8H46l-18 10z"/><circle cx="34" cy="54" r="9"/><circle cx="86" cy="54" r="9"/>'};
-SIL.matic=SIL.motor;
 const $=s=>document.querySelector(s);
 const uid=()=>Math.random().toString(36).slice(2,9);
 const rp=n=>'Rp'+Math.round(n||0).toLocaleString('id-ID');
@@ -132,7 +131,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const fd=d=>new Date(d+'T00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
 let S=load(),newPhoto=null;
-function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.vehicles))return d}catch(e){}return{vehicles:[],cur:null,tab:'home'}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.vehicles)){d.vehicles.forEach(v=>{if(v.type==='matic')v.type='motor'});return d}}catch(e){}return{vehicles:[],cur:null,tab:'home'}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){toast('Penyimpanan penuh. Coba foto yang lebih kecil atau hapus data lama.');return false}}
 const V=()=>S.vehicles.find(v=>v.id===S.cur)||null;
 function tab(t){S.tab=t;save();render();scrollTo(0,0)}
@@ -158,7 +157,7 @@ function totals(v){
 function homeView(v){
  const T=totals(v),ss=status(v),ok=ss.filter(s=>s.cls==='ok').length,pct=ss.length?Math.round(ok/ss.length*100):0;
  const hero=`<section class="hero">${v.photo?`<img src="${v.photo}" alt="Foto ${esc(v.name)}">`:`<div class="ph"><svg viewBox="0 0 120 70">${SIL[v.type]||SIL.motor}</svg></div>`}
- <div class="cap"><div><h2>${esc(v.name)}</h2><div class="sub">${v.type==='mobil'?'Mobil':v.type==='matic'?'Motor matic':'Motor'}${v.plat?' · '+esc(v.plat):''}</div></div><button class="ghost" onclick="$('#ph').click()">${v.photo?'Ganti foto':'Tambah foto'}</button></div><i class="bar"></i></section>`;
+ <div class="cap"><div><h2>${esc(v.name)}</h2><div class="sub">${v.type==='mobil'?'Mobil':'Motor'}${v.plat?' · '+esc(v.plat):''}</div></div><button class="ghost" onclick="$('#ph').click()">${v.photo?'Ganti foto':'Tambah foto'}</button></div><i class="bar"></i></section>`;
  const panel=`<section class="panel"><div><div class="lbl">Total biaya servis</div><div class="big"><i>Rp</i>${Math.round(T.all).toLocaleString('id-ID')}</div><div class="lbl">Tahun ini ${rp(T.yr)} · ${v.logs.length} servis</div></div>
  <div class="gauge"><svg viewBox="0 0 120 70"><path d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="#0c1322" stroke-width="10" stroke-linecap="round"/><path d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="#d9b86c" stroke-width="10" stroke-linecap="round" stroke-dasharray="${pct/100*157} 157"/></svg><b>${pct}%</b><small>terawat</small></div></section>`;
  return hero+panel+`<h3>Jadwal perawatan</h3>`+ss.map(s=>`<div class="it"><i class="dot ${s.cls}"></i><div><b>${esc(s.r.name)}</b><small>${s.last?'Terakhir '+fd(s.last)+' · ':''}tiap ${s.r.months} bulan</small></div><em class="pill ${s.cls}">${s.txt}</em><button class="chk" onclick="openLog(${s.i})" aria-label="Tandai ${esc(s.r.name)} selesai">✓</button></div>`).join('');
@@ -181,7 +180,7 @@ function rulesView(v){
  return `<h3 style="margin-top:8px">Interval perawatan</h3>`
  +v.rules.map((r,i)=>`<div class="card row"><span>${esc(r.name)}</span><span class="row" style="gap:6px"><input type="number" min="1" value="${r.months}" style="width:68px" onchange="setRule(${i},this.value)" aria-label="Interval bulan ${esc(r.name)}"><span class="mute">bulan</span><button class="x" onclick="delRule(${i})" aria-label="Hapus aturan">×</button></span></div>`).join('')
  +`<div class="card row" style="gap:6px"><input id="nn" placeholder="Jenis baru, mis. Aki" style="flex:1"><input id="nm" type="number" min="1" placeholder="Bulan" style="width:76px"><button class="btn" onclick="addRule()">Tambah</button></div>
- <h3>Kendaraan dan data</h3><div class="row" style="gap:8px;flex-wrap:wrap;justify-content:flex-start"><button class="btn g" onclick="useMatic()">Pakai jadwal matic</button><button class="btn g" onclick="exportData()">Ekspor cadangan</button><button class="btn g" onclick="$('#imp').click()">Impor cadangan</button><button class="btn d" onclick="delVehicle()">Hapus kendaraan ini</button></div>
+ <h3>Kendaraan dan data</h3><div class="row" style="gap:8px;flex-wrap:wrap;justify-content:flex-start"><button class="btn g" onclick="useDefault()">Pakai jadwal ${v.type==='mobil'?'mobil':'motor'}</button><button class="btn g" onclick="exportData()">Ekspor cadangan</button><button class="btn g" onclick="$('#imp').click()">Impor cadangan</button><button class="btn d" onclick="delVehicle()">Hapus kendaraan ini</button></div>
  <p class="mute">Data tersimpan di browser perangkat ini. Ekspor cadangan sesekali supaya aman.</p>`;
 }
 function render(){
@@ -197,14 +196,14 @@ function saveLog(e){e.preventDefault();const v=V(),f=e.target.elements;
  v.logs.push({id:uid(),type:f.jenis.value.trim(),date:f.tgl.value,cost:+f.biaya.value||0,km:f.km.value,note:f.cat.value.trim()});
  save();$('#dl').close();S.tab='home';render();toast('Servis dicatat')}
 async function delLog(id){if(!await ask('Hapus catatan?','Catatan servis ini akan dihapus permanen.','Hapus',true))return;const v=V();v.logs=v.logs.filter(l=>l.id!==id);save();render();toast('Catatan dihapus')}
-function openV(){$('#dv form').reset();newPhoto=null;$('#vpi').hidden=true;$('#vpt').textContent='Pilih foto dari galeri';setSeg('matic');$('#dv').showModal()}
+function openV(){$('#dv form').reset();newPhoto=null;$('#vpi').hidden=true;$('#vpt').textContent='Pilih foto dari galeri';setSeg('motor');$('#dv').showModal()}
 function saveV(e){e.preventDefault();const f=e.target.elements;
  const v={id:uid(),name:f.nama.value.trim(),plat:f.plat.value.trim(),type:f.jenis.value,photo:newPhoto,rules:PRESET[f.jenis.value].map(([name,months])=>({name,months})),logs:[]};
  S.vehicles.push(v);S.cur=v.id;S.tab='home';if(!save()){S.vehicles.pop();S.cur=S.vehicles[0]?.id||null}$('#dv').close();render();toast('Kendaraan ditambahkan')}
 async function delVehicle(){const v=V();if(!await ask('Hapus '+v.name+'?','Seluruh riwayat servisnya ikut terhapus.','Hapus',true))return;S.vehicles=S.vehicles.filter(x=>x.id!==v.id);S.cur=S.vehicles[0]?.id||null;S.tab='home';save();render()}
 function setRule(i,val){const n=parseInt(val,10);if(n>0){V().rules[i].months=n;save()}}
 function delRule(i){V().rules.splice(i,1);save();render()}
-async function useMatic(){if(!await ask('Pakai jadwal matic?','Semua aturan kendaraan ini diganti. Riwayat servis tidak berubah.','Ganti'))return;V().rules=PRESET.matic.map(([name,months])=>({name,months}));save();render();toast('Jadwal matic dipasang')}
+async function useDefault(){const t=V().type==='mobil'?'mobil':'motor';if(!await ask('Pakai jadwal '+t+'?','Semua aturan kendaraan ini diganti. Riwayat servis tidak berubah.','Ganti'))return;V().rules=PRESET[t].map(([name,months])=>({name,months}));save();render();toast('Jadwal '+t+' dipasang')}
 function addRule(){const n=$('#nn').value.trim(),m=parseInt($('#nm').value,10);if(!n||!(m>0))return;V().rules.push({name:n,months:m});save();render()}
 function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='apex-garage-cadangan.json';a.click()}
 function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{inp.value='';try{const d=JSON.parse(r.result);if(!Array.isArray(d.vehicles))throw 0;if(!await ask('Impor cadangan?','Semua data sekarang akan diganti dengan isi cadangan.','Ganti',true))return;S=d;S.cur=S.cur||S.vehicles[0]?.id||null;S.tab='home';save();render()}catch(e){toast('File cadangan tidak valid.')}};r.readAsText(f)}
