@@ -40,6 +40,7 @@ main{max-width:560px;margin:0 auto;padding:8px 18px}
 h3{font-size:15px;font-weight:700;margin:22px 0 10px;letter-spacing:.3px}
 .it{display:flex;align-items:center;gap:12px;background:var(--s1);border:1px solid var(--line);border-radius:16px;padding:13px 14px;margin-bottom:8px}
 .it>div{flex:1;min-width:0}.it b{display:block;font-weight:600}.it small{color:var(--mute)}
+.chk{flex:none;width:34px;height:34px;border-radius:50%;background:transparent;color:var(--gold);border:1px solid var(--gold2);font-size:16px;cursor:pointer}
 .dot{width:10px;height:10px;border-radius:50%;flex:none}
 .pill{font-style:normal;font-size:12px;font-weight:700;border-radius:999px;padding:4px 11px;white-space:nowrap}
 .bad{background:#3a1519;color:#ff8a8f}.warn{background:#3a2c0f;color:#ffc457}.ok{background:#10301f;color:#5fdc9b}.none{background:#1b2438;color:#8493ad}
@@ -71,6 +72,22 @@ dialog h3{margin-top:0;font-size:18px;font-style:italic}
 dialog label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
 dialog input,dialog select{width:100%}
 .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.sug{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sg{background:#0b1220;color:var(--mute);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;cursor:pointer}
+.sg:active{color:var(--gold);border-color:var(--gold2)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#0b1220;border:1px solid var(--line);border-radius:14px;padding:4px}
+.seg button{background:none;border:0;color:var(--mute);font:inherit;font-weight:600;padding:9px 0;border-radius:10px;cursor:pointer}
+.seg button.on{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#14100a}
+dialog .up{display:flex;align-items:center;gap:12px;border:1.5px dashed var(--line);border-radius:14px;padding:10px;color:var(--ink);font-size:14px;cursor:pointer;margin:0}
+dialog .up:hover{border-color:var(--gold2)}
+.up::before{content:"+";width:56px;height:56px;border-radius:10px;background:#0b1220;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:26px;flex:none}
+.up:has(img:not([hidden]))::before{display:none}
+.up img{width:56px;height:56px;object-fit:cover;border-radius:10px;flex:none}
+.up img[hidden]{display:none}
+.btn.dd{background:#ff5a62;color:#fff}
+#cf p{margin:0}
+#toast{position:fixed;left:50%;bottom:calc(98px + env(safe-area-inset-bottom));transform:translate(-50%,16px);background:#1b2742;color:var(--ink);border:1px solid var(--gold2);border-radius:999px;padding:10px 18px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translate(-50%,0)}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 </style></head><body>
 <header><h1 class="logo">APEX <span>GARAGE</span></h1><span class="pro">PRO</span></header>
@@ -84,7 +101,7 @@ dialog input,dialog select{width:100%}
 </nav>
 
 <dialog id="dl"><form onsubmit="saveLog(event)"><h3>Catat servis</h3>
-<label>Jenis perawatan</label><input name="jenis" list="jl" required placeholder="Ganti oli"><datalist id="jl"></datalist>
+<label>Jenis perawatan</label><input name="jenis" required placeholder="Ganti oli" autocomplete="off"><div class="sug" id="jl"></div>
 <label>Tanggal</label><input name="tgl" type="date" required>
 <label>Biaya (Rp)</label><input name="biaya" type="number" inputmode="numeric" min="0" placeholder="85000">
 <label>KM (boleh kosong)</label><input name="km" type="number" inputmode="numeric" min="0">
@@ -94,16 +111,19 @@ dialog input,dialog select{width:100%}
 <dialog id="dv"><form onsubmit="saveV(event)"><h3>Tambah kendaraan</h3>
 <label>Nama</label><input name="nama" required placeholder="Vario 125">
 <label>Plat nomor (opsional)</label><input name="plat" placeholder="B 1234 XYZ">
-<label>Jenis</label><select name="jenis"><option value="motor">Motor</option><option value="mobil">Mobil</option></select>
-<label>Foto kendaraan (opsional)</label><input type="file" id="vp" accept="image/*">
+<label>Jenis</label><input type="hidden" name="jenis" value="matic"><div class="seg" id="seg"><button type="button" class="on" data-v="matic">Matic</button><button type="button" data-v="motor">Motor</button><button type="button" data-v="mobil">Mobil</button></div>
+<label>Foto kendaraan (opsional)</label><label class="up" for="vp"><img id="vpi" alt="" hidden><span id="vpt">Pilih foto dari galeri</span></label><input type="file" id="vp" accept="image/*" hidden>
 <div class="acts"><button type="button" class="btn g" onclick="$('#dv').close()">Batal</button><button class="btn">Tambah</button></div></form></dialog>
+<dialog id="cf"><h3 id="cft"></h3><p class="mute" id="cfm"></p><div class="acts"><button type="button" class="btn g" id="cfn">Batal</button><button type="button" class="btn" id="cfy">Ya</button></div></dialog>
+<div id="toast" role="status"></div>
 <input type="file" id="ph" accept="image/*" hidden>
 <input type="file" id="imp" accept="application/json" hidden onchange="importData(this)">
 
 <script>
 const KEY='bengkel-v1',TABS=['home','riwayat','biaya','aturan'];
-const PRESET={motor:[["Ganti oli",2],["Lumasi rantai",1],["Busi",6],["Filter udara",6],["Kampas rem",6]],mobil:[["Ganti oli",6],["Filter udara",12],["Busi",12],["Kampas rem",12],["Aki",24]]};
+const PRESET={matic:[["Ganti oli",2],["Oli gardan",6],["Bersihkan CVT",6],["Kampas rem",6],["Filter udara",12],["Busi",12],["V-belt dan roller",24],["Minyak rem",24],["Aki",24]],motor:[["Ganti oli",2],["Lumasi rantai",1],["Busi",6],["Filter udara",6],["Kampas rem",6]],mobil:[["Ganti oli",6],["Filter udara",12],["Busi",12],["Kampas rem",12],["Aki",24]]};
 const SIL={motor:'<circle cx="24" cy="52" r="14"/><circle cx="96" cy="52" r="14"/><path d="M24 52l22-24h22l12 24M46 28l-6-10h-10M68 28l-4-12h10"/>',mobil:'<path d="M8 52h104l-8-18-22-8H46l-18 10z"/><circle cx="34" cy="54" r="9"/><circle cx="86" cy="54" r="9"/>'};
+SIL.matic=SIL.motor;
 const $=s=>document.querySelector(s);
 const uid=()=>Math.random().toString(36).slice(2,9);
 const rp=n=>'Rp'+Math.round(n||0).toLocaleString('id-ID');
@@ -113,21 +133,21 @@ const fd=d=>new Date(d+'T00:00').toLocaleDateString('id-ID',{day:'numeric',month
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
 let S=load(),newPhoto=null;
 function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.vehicles))return d}catch(e){}return{vehicles:[],cur:null,tab:'home'}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){alert('Penyimpanan penuh. Coba foto yang lebih kecil atau hapus data lama.');return false}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));return true}catch(e){toast('Penyimpanan penuh. Coba foto yang lebih kecil atau hapus data lama.');return false}}
 const V=()=>S.vehicles.find(v=>v.id===S.cur)||null;
 function tab(t){S.tab=t;save();render();scrollTo(0,0)}
 function pickPhoto(file,cb){const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,900/im.width),c=document.createElement('canvas');c.width=im.width*k;c.height=im.height*k;c.getContext('2d').drawImage(im,0,0,c.width,c.height);cb(c.toDataURL('image/jpeg',.8))};im.src=r.result};r.readAsDataURL(file)}
 
 function status(v){
  const t=new Date();t.setHours(0,0,0,0);
- return v.rules.map(r=>{
+ return v.rules.map((r,i)=>{
   const l=v.logs.filter(x=>x.type.toLowerCase()===r.name.toLowerCase()).sort((a,b)=>b.date.localeCompare(a.date))[0];
-  if(!l)return{r,cls:'none',txt:'Belum dicatat',d:1e9};
+  if(!l)return{r,i,cls:'none',txt:'Belum dicatat',d:1e9};
   const due=new Date(l.date+'T00:00');due.setMonth(due.getMonth()+r.months);
   const d=Math.round((due-t)/864e5);
   const cls=d<0?'bad':d<=14?'warn':'ok';
   const txt=d<0?`Telat ${-d} hari`:d===0?'Hari ini':d<=60?`${d} hari lagi`:`${Math.round(d/30)} bulan lagi`;
-  return{r,cls,txt,d,last:l.date};
+  return{r,i,cls,txt,d,last:l.date};
  }).sort((a,b)=>a.d-b.d);
 }
 function totals(v){
@@ -138,10 +158,10 @@ function totals(v){
 function homeView(v){
  const T=totals(v),ss=status(v),ok=ss.filter(s=>s.cls==='ok').length,pct=ss.length?Math.round(ok/ss.length*100):0;
  const hero=`<section class="hero">${v.photo?`<img src="${v.photo}" alt="Foto ${esc(v.name)}">`:`<div class="ph"><svg viewBox="0 0 120 70">${SIL[v.type]||SIL.motor}</svg></div>`}
- <div class="cap"><div><h2>${esc(v.name)}</h2><div class="sub">${v.type==='mobil'?'Mobil':'Motor'}${v.plat?' · '+esc(v.plat):''}</div></div><button class="ghost" onclick="$('#ph').click()">${v.photo?'Ganti foto':'Tambah foto'}</button></div><i class="bar"></i></section>`;
+ <div class="cap"><div><h2>${esc(v.name)}</h2><div class="sub">${v.type==='mobil'?'Mobil':v.type==='matic'?'Motor matic':'Motor'}${v.plat?' · '+esc(v.plat):''}</div></div><button class="ghost" onclick="$('#ph').click()">${v.photo?'Ganti foto':'Tambah foto'}</button></div><i class="bar"></i></section>`;
  const panel=`<section class="panel"><div><div class="lbl">Total biaya servis</div><div class="big"><i>Rp</i>${Math.round(T.all).toLocaleString('id-ID')}</div><div class="lbl">Tahun ini ${rp(T.yr)} · ${v.logs.length} servis</div></div>
  <div class="gauge"><svg viewBox="0 0 120 70"><path d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="#0c1322" stroke-width="10" stroke-linecap="round"/><path d="M10 62A50 50 0 0 1 110 62" fill="none" stroke="#d9b86c" stroke-width="10" stroke-linecap="round" stroke-dasharray="${pct/100*157} 157"/></svg><b>${pct}%</b><small>terawat</small></div></section>`;
- return hero+panel+`<h3>Jadwal perawatan</h3>`+ss.map(s=>`<div class="it"><i class="dot ${s.cls}"></i><div><b>${esc(s.r.name)}</b><small>${s.last?'Terakhir '+fd(s.last)+' · ':''}tiap ${s.r.months} bulan</small></div><em class="pill ${s.cls}">${s.txt}</em></div>`).join('');
+ return hero+panel+`<h3>Jadwal perawatan</h3>`+ss.map(s=>`<div class="it"><i class="dot ${s.cls}"></i><div><b>${esc(s.r.name)}</b><small>${s.last?'Terakhir '+fd(s.last)+' · ':''}tiap ${s.r.months} bulan</small></div><em class="pill ${s.cls}">${s.txt}</em><button class="chk" onclick="openLog(${s.i})" aria-label="Tandai ${esc(s.r.name)} selesai">✓</button></div>`).join('');
 }
 function histView(v){
  if(!v.logs.length)return `<div class="empty"><h2>Belum ada riwayat</h2><p class="mute">Ketuk tombol emas di tengah untuk mencatat servis pertama.</p></div>`;
@@ -161,7 +181,7 @@ function rulesView(v){
  return `<h3 style="margin-top:8px">Interval perawatan</h3>`
  +v.rules.map((r,i)=>`<div class="card row"><span>${esc(r.name)}</span><span class="row" style="gap:6px"><input type="number" min="1" value="${r.months}" style="width:68px" onchange="setRule(${i},this.value)" aria-label="Interval bulan ${esc(r.name)}"><span class="mute">bulan</span><button class="x" onclick="delRule(${i})" aria-label="Hapus aturan">×</button></span></div>`).join('')
  +`<div class="card row" style="gap:6px"><input id="nn" placeholder="Jenis baru, mis. Aki" style="flex:1"><input id="nm" type="number" min="1" placeholder="Bulan" style="width:76px"><button class="btn" onclick="addRule()">Tambah</button></div>
- <h3>Kendaraan dan data</h3><div class="row" style="gap:8px;flex-wrap:wrap;justify-content:flex-start"><button class="btn g" onclick="exportData()">Ekspor cadangan</button><button class="btn g" onclick="$('#imp').click()">Impor cadangan</button><button class="btn d" onclick="delVehicle()">Hapus kendaraan ini</button></div>
+ <h3>Kendaraan dan data</h3><div class="row" style="gap:8px;flex-wrap:wrap;justify-content:flex-start"><button class="btn g" onclick="useMatic()">Pakai jadwal matic</button><button class="btn g" onclick="exportData()">Ekspor cadangan</button><button class="btn g" onclick="$('#imp').click()">Impor cadangan</button><button class="btn d" onclick="delVehicle()">Hapus kendaraan ini</button></div>
  <p class="mute">Data tersimpan di browser perangkat ini. Ekspor cadangan sesekali supaya aman.</p>`;
 }
 function render(){
@@ -172,23 +192,29 @@ function render(){
  $('#main').innerHTML=!v?`<div class="empty"><h2>Mulai dengan kendaraanmu</h2><p class="mute">Tambahkan motor atau mobil, lengkap dengan fotonya.</p><button class="btn" onclick="openV()">Tambah kendaraan</button></div>`
   :chips+(S.tab==='riwayat'?histView(v):S.tab==='biaya'?biayaView(v):S.tab==='aturan'?rulesView(v):homeView(v));
 }
-function openLog(){const v=V();if(!v)return;$('#jl').innerHTML=v.rules.map(r=>`<option value="${esc(r.name)}">`).join('');const f=$('#dl form');f.reset();f.elements.tgl.value=today();$('#dl').showModal()}
+function openLog(i){const v=V();if(!v)return;$('#jl').innerHTML=v.rules.map((r,i)=>`<button type="button" class="sg" onclick="pickType(${i})">${esc(r.name)}</button>`).join('');const f=$('#dl form');f.reset();f.elements.tgl.value=today();if(Number.isInteger(i))f.elements.jenis.value=v.rules[i].name;$('#dl').showModal()}
 function saveLog(e){e.preventDefault();const v=V(),f=e.target.elements;
  v.logs.push({id:uid(),type:f.jenis.value.trim(),date:f.tgl.value,cost:+f.biaya.value||0,km:f.km.value,note:f.cat.value.trim()});
- save();$('#dl').close();S.tab='home';render()}
-function delLog(id){if(!confirm('Hapus catatan ini?'))return;const v=V();v.logs=v.logs.filter(l=>l.id!==id);save();render()}
-function openV(){$('#dv form').reset();newPhoto=null;$('#dv').showModal()}
+ save();$('#dl').close();S.tab='home';render();toast('Servis dicatat')}
+async function delLog(id){if(!await ask('Hapus catatan?','Catatan servis ini akan dihapus permanen.','Hapus',true))return;const v=V();v.logs=v.logs.filter(l=>l.id!==id);save();render();toast('Catatan dihapus')}
+function openV(){$('#dv form').reset();newPhoto=null;$('#vpi').hidden=true;$('#vpt').textContent='Pilih foto dari galeri';setSeg('matic');$('#dv').showModal()}
 function saveV(e){e.preventDefault();const f=e.target.elements;
  const v={id:uid(),name:f.nama.value.trim(),plat:f.plat.value.trim(),type:f.jenis.value,photo:newPhoto,rules:PRESET[f.jenis.value].map(([name,months])=>({name,months})),logs:[]};
- S.vehicles.push(v);S.cur=v.id;S.tab='home';if(!save()){S.vehicles.pop();S.cur=S.vehicles[0]?.id||null}$('#dv').close();render()}
-function delVehicle(){const v=V();if(!confirm('Hapus '+v.name+' beserta seluruh riwayatnya?'))return;S.vehicles=S.vehicles.filter(x=>x.id!==v.id);S.cur=S.vehicles[0]?.id||null;S.tab='home';save();render()}
+ S.vehicles.push(v);S.cur=v.id;S.tab='home';if(!save()){S.vehicles.pop();S.cur=S.vehicles[0]?.id||null}$('#dv').close();render();toast('Kendaraan ditambahkan')}
+async function delVehicle(){const v=V();if(!await ask('Hapus '+v.name+'?','Seluruh riwayat servisnya ikut terhapus.','Hapus',true))return;S.vehicles=S.vehicles.filter(x=>x.id!==v.id);S.cur=S.vehicles[0]?.id||null;S.tab='home';save();render()}
 function setRule(i,val){const n=parseInt(val,10);if(n>0){V().rules[i].months=n;save()}}
 function delRule(i){V().rules.splice(i,1);save();render()}
+async function useMatic(){if(!await ask('Pakai jadwal matic?','Semua aturan kendaraan ini diganti. Riwayat servis tidak berubah.','Ganti'))return;V().rules=PRESET.matic.map(([name,months])=>({name,months}));save();render();toast('Jadwal matic dipasang')}
 function addRule(){const n=$('#nn').value.trim(),m=parseInt($('#nm').value,10);if(!n||!(m>0))return;V().rules.push({name:n,months:m});save();render()}
 function exportData(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(S)],{type:'application/json'}));a.download='apex-garage-cadangan.json';a.click()}
-function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.vehicles))throw 0;if(!confirm('Ganti semua data sekarang dengan cadangan ini?'))return;S=d;S.cur=S.cur||S.vehicles[0]?.id||null;S.tab='home';save();render()}catch(e){alert('File cadangan tidak valid.')}inp.value=''};r.readAsText(f)}
+function importData(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=async()=>{inp.value='';try{const d=JSON.parse(r.result);if(!Array.isArray(d.vehicles))throw 0;if(!await ask('Impor cadangan?','Semua data sekarang akan diganti dengan isi cadangan.','Ganti',true))return;S=d;S.cur=S.cur||S.vehicles[0]?.id||null;S.tab='home';save();render()}catch(e){toast('File cadangan tidak valid.')}};r.readAsText(f)}
+function pickType(i){$('#dl form').elements.jenis.value=V().rules[i].name}
+function setSeg(v){$('#dv input[name=jenis]').value=v;document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on',b.dataset.v===v))}
+$('#seg').onclick=e=>{const b=e.target.closest('button');if(b)setSeg(b.dataset.v)};
+function ask(title,msg,ok,danger){return new Promise(res=>{const d=$('#cf'),y=$('#cfy'),n=$('#cfn');$('#cft').textContent=title;$('#cfm').textContent=msg;y.textContent=ok;y.className='btn'+(danger?' dd':'');const done=v=>{d.close();res(v)};y.onclick=()=>done(true);n.onclick=()=>done(false);d.oncancel=()=>res(false);d.showModal()})}
+let tt;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),2600)}
 $('#ph').onchange=e=>{const f=e.target.files[0];if(f)pickPhoto(f,u=>{V().photo=u;save();render()});e.target.value=''};
-$('#vp').onchange=e=>{const f=e.target.files[0];if(f)pickPhoto(f,u=>{newPhoto=u})};
+$('#vp').onchange=e=>{const f=e.target.files[0];if(f)pickPhoto(f,u=>{newPhoto=u;$('#vpi').src=u;$('#vpi').hidden=false;$('#vpt').textContent='Ganti foto'})};
 if(!V()&&S.vehicles[0])S.cur=S.vehicles[0].id;
 render();
 if('serviceWorker' in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('sw.js').catch(()=>{});
